@@ -1,0 +1,3 @@
+[submodule "wasm-shim"]
+	path = wasm-shim
+	url = https://github.com/kuadrant/wasm-shim
