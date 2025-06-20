@@ -26,12 +26,13 @@
     COPY wasm-shim/LICENSE /licenses/LICENSE
     
     RUN cargo build --target=wasm32-unknown-unknown --release --offline
+    USER 1001
     
     # ------------------------------------------------------------------------------
     # Run Stage
     # ------------------------------------------------------------------------------
-    FROM scratch
-    
+    FROM registry.redhat.io/ubi9/ubi:latest
+    USER 1001
     LABEL version="0.9.0" \
               com.redhat.component="wasm-shim-container" \
               name="rhcl-1/wasm-shim-rhel9" \
