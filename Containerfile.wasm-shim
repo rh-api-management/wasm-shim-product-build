@@ -33,13 +33,13 @@
     # ------------------------------------------------------------------------------
     FROM registry.redhat.io/ubi9/ubi:latest
     USER 1001
-    LABEL version="0.9.0" \
+    LABEL version="0.11.0" \
               com.redhat.component="wasm-shim-container" \
               name="rhcl-1/wasm-shim-rhel9" \
               summary="A Proxy-Wasm module written in Rust, acting as a shim between Envoy and Limitador." \
               description="A Proxy-Wasm module written in Rust, acting as a shim between Envoy and Limitador." \
               distribution-scope="public" \
-              release="1.1.1" \
+              release="1.2.0" \
               url="https://catalog.redhat.com/software/containers/rhcl-1/wasm-shim-rhel9/672a1e565d865456f8f2835f" \
               vendor="Red Hat, Inc." \
               io.k8s.display-name="Wasm-shim Rate Limiting" \
