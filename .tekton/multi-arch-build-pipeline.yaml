@@ -78,12 +78,7 @@ spec:
       workspace: git-auth
     - name: netrc
       workspace: netrc
-  - matrix:
-      params:
-      - name: PLATFORM
-        value:
-        - $(params.build-platforms)
-    name: build-images
+  - name: build-images
     params:
     - name: BUILDAH_FORMAT
       value: $(params.buildah-format)
@@ -128,49 +123,18 @@ spec:
       operator: in
       values:
       - "true"
-  - name: build-image-index
-    params:
-    - name: BUILDAH_FORMAT
-      value: $(params.buildah-format)
-    - name: IMAGE
-      value: $(params.output-image)
-    - name: COMMIT_SHA
-      value: $(tasks.clone-repository.results.commit)
-    - name: IMAGE_EXPIRES_AFTER
-      value: $(params.image-expires-after)
-    - name: ALWAYS_BUILD_INDEX
-      value: $(params.build-image-index)
-    - name: IMAGES
-      value:
-      - $(tasks.build-images.results.IMAGE_REF[*])
-    runAfter:
-    - build-images
-    taskRef:
-      params:
-      - name: name
-        value: build-image-index
-      - name: bundle
-        value: quay.io/konflux-ci/tekton-catalog/task-build-image-index:0.1@sha256:d94cad7f41be61074dd21c7dff26dab9217c3435a16f62813c1cb8382dd9aae6
-      - name: kind
-        value: task
-      resolver: bundles
-    when:
-    - input: $(tasks.init.results.build)
-      operator: in
-      values:
-      - "true"
   - name: build-source-image
     params:
     - name: BINARY_IMAGE
-      value: $(tasks.build-image-index.results.IMAGE_URL)
+      value: $(tasks.build-images.results.IMAGE_URL)
     - name: SOURCE_ARTIFACT
       value: $(tasks.prefetch-dependencies.results.SOURCE_ARTIFACT)
     - name: CACHI2_ARTIFACT
       value: $(tasks.prefetch-dependencies.results.CACHI2_ARTIFACT)
     - name: BINARY_IMAGE_DIGEST
-      value: $(tasks.build-image-index.results.IMAGE_DIGEST)
+      value: $(tasks.build-images.results.IMAGE_DIGEST)
     runAfter:
-    - build-image-index
+    - build-images
     taskRef:
       params:
       - name: name
@@ -192,11 +156,11 @@ spec:
   - name: deprecated-base-image-check
     params:
     - name: IMAGE_URL
-      value: $(tasks.build-image-index.results.IMAGE_URL)
+      value: $(tasks.build-images.results.IMAGE_URL)
     - name: IMAGE_DIGEST
-      value: $(tasks.build-image-index.results.IMAGE_DIGEST)
+      value: $(tasks.build-images.results.IMAGE_DIGEST)
     runAfter:
-    - build-image-index
+    - build-images
     taskRef:
       params:
       - name: name
@@ -214,11 +178,11 @@ spec:
   - name: clair-scan
     params:
     - name: image-digest
-      value: $(tasks.build-image-index.results.IMAGE_DIGEST)
+      value: $(tasks.build-images.results.IMAGE_DIGEST)
     - name: image-url
-      value: $(tasks.build-image-index.results.IMAGE_URL)
+      value: $(tasks.build-images.results.IMAGE_URL)
     runAfter:
-    - build-image-index
+    - build-images
     taskRef:
       params:
       - name: name
@@ -236,9 +200,9 @@ spec:
   - name: ecosystem-cert-preflight-checks
     params:
     - name: image-url
-      value: $(tasks.build-image-index.results.IMAGE_URL)
+      value: $(tasks.build-images.results.IMAGE_URL)
     runAfter:
-    - build-image-index
+    - build-images
     taskRef:
       params:
       - name: name
@@ -256,15 +220,15 @@ spec:
   - name: sast-snyk-check
     params:
     - name: image-digest
-      value: $(tasks.build-image-index.results.IMAGE_DIGEST)
+      value: $(tasks.build-images.results.IMAGE_DIGEST)
     - name: image-url
-      value: $(tasks.build-image-index.results.IMAGE_URL)
+      value: $(tasks.build-images.results.IMAGE_URL)
     - name: SOURCE_ARTIFACT
       value: $(tasks.prefetch-dependencies.results.SOURCE_ARTIFACT)
     - name: CACHI2_ARTIFACT
       value: $(tasks.prefetch-dependencies.results.CACHI2_ARTIFACT)
     runAfter:
-    - build-image-index
+    - build-images
     taskRef:
       params:
       - name: name
@@ -282,11 +246,11 @@ spec:
   - name: clamav-scan
     params:
     - name: image-digest
-      value: $(tasks.build-image-index.results.IMAGE_DIGEST)
+      value: $(tasks.build-images.results.IMAGE_DIGEST)
     - name: image-url
-      value: $(tasks.build-image-index.results.IMAGE_URL)
+      value: $(tasks.build-images.results.IMAGE_URL)
     runAfter:
-    - build-image-index
+    - build-images
     taskRef:
       params:
       - name: name
@@ -304,11 +268,11 @@ spec:
   - name: apply-tags
     params:
     - name: IMAGE_URL
-      value: $(tasks.build-image-index.results.IMAGE_URL)
+      value: $(tasks.build-images.results.IMAGE_URL)
     - name: IMAGE_DIGEST
-      value: $(tasks.build-image-index.results.IMAGE_DIGEST)
+      value: $(tasks.build-images.results.IMAGE_DIGEST)
     runAfter:
-    - build-image-index
+    - build-images
     taskRef:
       params:
       - name: name
@@ -321,9 +285,9 @@ spec:
   - name: push-dockerfile
     params:
     - name: IMAGE
-      value: $(tasks.build-image-index.results.IMAGE_URL)
+      value: $(tasks.build-images.results.IMAGE_URL)
     - name: IMAGE_DIGEST
-      value: $(tasks.build-image-index.results.IMAGE_DIGEST)
+      value: $(tasks.build-images.results.IMAGE_DIGEST)
     - name: DOCKERFILE
       value: $(params.dockerfile)
     - name: CONTEXT
@@ -331,7 +295,7 @@ spec:
     - name: SOURCE_ARTIFACT
       value: $(tasks.prefetch-dependencies.results.SOURCE_ARTIFACT)
     runAfter:
-    - build-image-index
+    - build-images
     taskRef:
       params:
       - name: name
@@ -344,11 +308,11 @@ spec:
   - name: rpms-signature-scan
     params:
     - name: image-url
-      value: $(tasks.build-image-index.results.IMAGE_URL)
+      value: $(tasks.build-images.results.IMAGE_URL)
     - name: image-digest
-      value: $(tasks.build-image-index.results.IMAGE_DIGEST)
+      value: $(tasks.build-images.results.IMAGE_DIGEST)
     runAfter:
-    - build-image-index
+    - build-images
     taskRef:
       params:
       - name: name
@@ -365,7 +329,7 @@ spec:
         - "false"
   - name: coverity-availability-check
     runAfter:
-    - build-image-index
+    - build-images
     taskRef:
       params:
       - name: name
@@ -383,9 +347,9 @@ spec:
   - name: sast-coverity-check
     params:
     - name: image-digest
-      value: $(tasks.build-image-index.results.IMAGE_DIGEST)
+      value: $(tasks.build-images.results.IMAGE_DIGEST)
     - name: image-url
-      value: $(tasks.build-image-index.results.IMAGE_URL)
+      value: $(tasks.build-images.results.IMAGE_URL)
     - name: IMAGE
       value: $(params.output-image)
     - name: DOCKERFILE
@@ -432,15 +396,15 @@ spec:
   - name: sast-shell-check
     params:
     - name: image-digest
-      value: $(tasks.build-image-index.results.IMAGE_DIGEST)
+      value: $(tasks.build-images.results.IMAGE_DIGEST)
     - name: image-url
-      value: $(tasks.build-image-index.results.IMAGE_URL)
+      value: $(tasks.build-images.results.IMAGE_URL)
     - name: SOURCE_ARTIFACT
       value: $(tasks.prefetch-dependencies.results.SOURCE_ARTIFACT)
     - name: CACHI2_ARTIFACT
       value: $(tasks.prefetch-dependencies.results.CACHI2_ARTIFACT)
     runAfter:
-    - build-image-index
+    - build-images
     taskRef:
       params:
       - name: name
@@ -458,15 +422,15 @@ spec:
   - name: sast-unicode-check
     params:
     - name: image-digest
-      value: $(tasks.build-image-index.results.IMAGE_DIGEST)
+      value: $(tasks.build-images.results.IMAGE_DIGEST)
     - name: image-url
-      value: $(tasks.build-image-index.results.IMAGE_URL)
+      value: $(tasks.build-images.results.IMAGE_URL)
     - name: SOURCE_ARTIFACT
       value: $(tasks.prefetch-dependencies.results.SOURCE_ARTIFACT)
     - name: CACHI2_ARTIFACT
       value: $(tasks.prefetch-dependencies.results.CACHI2_ARTIFACT)
     runAfter:
-    - build-image-index
+    - build-images
     taskRef:
       params:
       - name: name
@@ -525,7 +489,7 @@ spec:
     type: string
   - default: "true"
     description: Add built image into an OCI image index
-    name: build-image-index
+    name: build-images
     type: string
   - default: []
     description: Array of --build-arg values ("arg=value" strings) for buildah
@@ -537,7 +501,6 @@ spec:
     type: string
   - default:
     - linux/x86_64
-    - linux/arm64
     description: List of platforms to build the container images on. The available set of values is determined by the configuration of the multi-platform-controller.
     name: build-platforms
     type: array
@@ -553,10 +516,10 @@ spec:
   results:
   - description: ""
     name: IMAGE_URL
-    value: $(tasks.build-image-index.results.IMAGE_URL)
+    value: $(tasks.build-images.results.IMAGE_URL)
   - description: ""
     name: IMAGE_DIGEST
-    value: $(tasks.build-image-index.results.IMAGE_DIGEST)
+    value: $(tasks.build-images.results.IMAGE_DIGEST)
   - description: ""
     name: CHAINS-GIT_URL
     value: $(tasks.clone-repository.results.url)
@@ -567,7 +530,7 @@ spec:
   - name: show-sbom
     params:
     - name: IMAGE_URL
-      value: $(tasks.build-image-index.results.IMAGE_URL)
+      value: $(tasks.build-images.results.IMAGE_URL)
     taskRef:
       params:
       - name: name
