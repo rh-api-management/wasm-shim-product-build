@@ -7,7 +7,7 @@ FROM registry.redhat.io/ubi9/ubi:latest as wasm-shim-build
 ARG GITHUB_SHA
 ENV GITHUB_SHA=${GITHUB_SHA:-unknown}
 ARG RUSTC_VERSION=1.80.0
-ARG TARGET=wasm32-unknown-unknown
+ARG TARGET=wasm32-wasip1
 RUN PKGS="rust-toolset llvm-toolset gcc-c++ gcc-toolset-12-binutils-gold protobuf-devel protobuf-compiler openssl-devel perl git rust-std-static-${TARGET}" \
     && dnf install --nodocs --nobest --assumeyes $PKGS \
     && rpm --verify --nogroup --nouser $PKGS \
@@ -25,7 +25,7 @@ COPY ./wasm-shim/vendor-protobufs vendor-protobufs
 
 COPY wasm-shim/LICENSE /licenses/LICENSE
 
-RUN cargo build --target=wasm32-unknown-unknown --release --offline
+RUN cargo build --target=wasm32-wasip1 --release --offline
 USER 1001
 
 # ------------------------------------------------------------------------------
@@ -48,5 +48,5 @@ LABEL version="0.12.0" \
       io.openshift.tags="rate limiting, envoy, api" \
       maintainer="eastizle@redhat.com"
 
-COPY --from=wasm-shim-build /usr/src/wasm-shim/target/wasm32-unknown-unknown/release/wasm_shim.wasm /plugin.wasm
+COPY --from=wasm-shim-build /usr/src/wasm-shim/target/wasm32-wasip1/release/wasm_shim.wasm /plugin.wasm
 COPY --from=wasm-shim-build licenses/LICENSE /licenses/LICENSE
