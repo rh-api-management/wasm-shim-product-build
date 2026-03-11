@@ -3,19 +3,6 @@ kind: Pipeline
 metadata:
   name: build-pipeline
 spec:
-  taskRunSpecs:
-    - pipelineTaskName: build-source-image
-      computeResources:
-        requests:
-          memory: 10Gi
-        limits:
-          memory: 10Gi
-      pipelineTaskName: sast-shell-check
-      computeResources:
-        requests:
-          memory: 10Gi
-        limits:
-          memory: 10Gi
   tasks:
   - name: init
     taskRef:
