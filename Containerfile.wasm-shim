@@ -33,7 +33,7 @@ USER 1001
 # ------------------------------------------------------------------------------
 FROM registry.redhat.io/ubi9/ubi:latest
 USER 1001
-LABEL version="0.12.2" \
+LABEL version="0.12.3" \
       com.redhat.component="wasm-shim-container" \
       name="rhcl-1/wasm-shim-rhel9" \
       cpe="cpe:/a:redhat:connectivity_link:1::el9" \
