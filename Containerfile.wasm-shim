@@ -43,8 +43,8 @@ LABEL version="0.13.0" \
       release="1.4.0" \
       url="https://catalog.redhat.com/software/containers/rhcl-1/wasm-shim-rhel9/672a1e565d865456f8f2835f" \
       vendor="Red Hat, Inc." \
-      io.k8s.display-name="Wasm-shim Rate Limiting" \
-      io.k8s.description="Wasm-shim is a generic rate-limiter written in Rust." \
+      io.k8s.display-name="Wasm-shim" \
+      io.k8s.description="A Proxy-Wasm module written in Rust, acting as a shim between Envoy and both Rate-limiting and External Auth services." \
       io.openshift.tags="rate limiting, envoy, api" \
       maintainer="eastizle@redhat.com"
 
