@@ -6,7 +6,6 @@ FROM registry.redhat.io/ubi9/ubi:latest as wasm-shim-build
 
 ARG GITHUB_SHA
 ENV GITHUB_SHA=${GITHUB_SHA:-unknown}
-ARG RUSTC_VERSION=1.80.0
 ARG TARGET=wasm32-wasip1
 RUN PKGS="rust-toolset llvm-toolset gcc-c++ gcc-toolset-12-binutils-gold protobuf-devel protobuf-compiler openssl-devel perl git rust-std-static-${TARGET}" \
     && dnf install --nodocs --nobest --assumeyes $PKGS \
@@ -14,7 +13,8 @@ RUN PKGS="rust-toolset llvm-toolset gcc-c++ gcc-toolset-12-binutils-gold protobu
     && yum -y clean all
 
 WORKDIR /usr/src/wasm-shim
-
+RUN RUSTC_VERSION=$(rustc --version | awk '{print $2}') && \
+    echo "Using Rust version: $RUSTC_VERSION"
 COPY ./wasm-shim/Cargo.lock ./Cargo.lock
 COPY ./wasm-shim/Cargo.toml ./Cargo.toml
 COPY wasm-shim/.cargo/config.toml ./.cargo/config.toml
