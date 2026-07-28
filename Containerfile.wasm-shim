@@ -32,6 +32,8 @@ USER 1001
 # Run Stage
 # ------------------------------------------------------------------------------
 FROM registry.redhat.io/ubi9/ubi-minimal:latest
+USER 0
+RUN microdnf install -y redhat-release && microdnf clean all
 USER 1001
 LABEL version="0.14.1" \
       com.redhat.component="wasm-shim-container" \
