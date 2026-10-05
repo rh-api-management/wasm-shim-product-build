@@ -24,6 +24,14 @@ COPY ./wasm-shim/vendor-protobufs vendor-protobufs
 
 COPY wasm-shim/LICENSE /licenses/LICENSE
 
+# UBI9/RHEL9 only ships protobuf-compiler 3.14.0, which rejects proto3 `optional`
+# fields unless --experimental_allow_proto3_optional is passed (it became the
+# default in protoc 3.15.0). The vendored protos use proto3 optional, so wrap
+# protoc to always pass the flag and point prost-build at it via $PROTOC.
+RUN printf '#!/bin/sh\nexec /usr/bin/protoc --experimental_allow_proto3_optional "$@"\n' > /usr/local/bin/protoc-wrapper \
+    && chmod +x /usr/local/bin/protoc-wrapper
+ENV PROTOC=/usr/local/bin/protoc-wrapper
+
 RUN cargo build --target=wasm32-wasip1 --release --offline
 USER 1001
 
