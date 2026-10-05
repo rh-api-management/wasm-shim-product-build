@@ -19,8 +19,7 @@ COPY ./wasm-shim/Cargo.lock ./Cargo.lock
 COPY ./wasm-shim/Cargo.toml ./Cargo.toml
 COPY wasm-shim/.cargo/config.toml ./.cargo/config.toml
 
-COPY ./wasm-shim/src src
-COPY ./wasm-shim/build.rs build.rs
+COPY ./wasm-shim/crates crates
 COPY ./wasm-shim/vendor-protobufs vendor-protobufs
 
 COPY wasm-shim/LICENSE /licenses/LICENSE
