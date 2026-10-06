@@ -38,7 +38,9 @@ USER 1001
 # ------------------------------------------------------------------------------
 # Run Stage
 # ------------------------------------------------------------------------------
-FROM registry.redhat.io/ubi9/ubi-minimal:latest
+# Use the RHEL9 PQC variant of ubi-minimal, which ships with the system-wide
+# crypto policy set to DEFAULT:PQ (CONNLINK-1566).
+FROM registry.redhat.io/ubi9/ubi-minimal-pqc:latest
 USER 1001
 LABEL version="0.15.0" \
       com.redhat.component="wasm-shim-container" \
